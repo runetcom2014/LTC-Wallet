@@ -1,0 +1,13 @@
+{
+    "coin": "LTC",
+    "servers": {
+        "LTC": [
+            "ltc-electrum.cakewallet.com:50002",
+            "0xrpc.io:60002",
+            "electrum-ltc.petrkr.net:60002",
+            "electrum2.cipig.net:20063",
+            "ltc.aftrek.org:50002",
+            "5.78.97.174:50002"
+        ]
+    }
+}
