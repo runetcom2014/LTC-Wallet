@@ -74,33 +74,33 @@ func (ui *WalletUI) buildRitualScreen() fyne.CanvasObject {
 	title := widget.NewLabelWithStyle("Ritual Protocol — LTC Wallet",
 		fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
 
-	addStr := widget.NewButtonWithIcon("+ Строка", theme.DocumentIcon(), func() {
+	addStr := widget.NewButtonWithIcon("+ Passphrase", theme.DocumentIcon(), func() {
 		ui.addStringRite()
 	})
-	addFile := widget.NewButtonWithIcon("+ Файл", theme.FolderOpenIcon(), func() {
+	addFile := widget.NewButtonWithIcon("+ File", theme.FolderOpenIcon(), func() {
 		ui.addFileRite()
 	})
-	addCity := widget.NewButtonWithIcon("+ Город и время", theme.SearchIcon(), func() {
+	addCity := widget.NewButtonWithIcon("+ City & Time", theme.SearchIcon(), func() {
 		ui.addCityTimeRite()
 	})
-	addSeq := widget.NewButtonWithIcon("+ Последовательность", theme.ListIcon(), func() {
+	addSeq := widget.NewButtonWithIcon("+ Sequence", theme.ListIcon(), func() {
 		ui.addSequenceRite()
 	})
-	addRune := widget.NewButtonWithIcon("+ Руны", theme.GridIcon(), func() {
+	addRune := widget.NewButtonWithIcon("+ Runes", theme.GridIcon(), func() {
 		ui.addRuneGridRite()
 	})
-	addConst := widget.NewButtonWithIcon("+ Созвездие", theme.ViewFullScreenIcon(), func() {
+	addConst := widget.NewButtonWithIcon("+ Constellation", theme.ViewFullScreenIcon(), func() {
 		ui.addConstellationRite()
 	})
 
 	addButtons := container.NewGridWithColumns(3, addStr, addFile, addCity, addSeq, addRune, addConst)
 	ui.riteBox = container.NewVBox()
 
-	ui.totalBits = widget.NewLabelWithStyle("Энтропия: 0.0 бит",
+	ui.totalBits = widget.NewLabelWithStyle("Entropy: 0.0 bits",
 		fyne.TextAlignCenter, fyne.TextStyle{})
 
 	ui.finalizeBtn = widget.NewButtonWithIcon(
-		"Открыть кошелёк", theme.LoginIcon(), ui.onFinalize)
+		"Open Wallet", theme.LoginIcon(), ui.onFinalize)
 	ui.finalizeBtn.Importance = widget.HighImportance
 
 	scroll := container.NewVScroll(ui.riteBox)
@@ -124,11 +124,11 @@ func (ui *WalletUI) addStringRite() {
 	}
 	entry := &riteEntry{id: id, riteType: "STRING"}
 
-	label := widget.NewLabelWithStyle("Строка", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	entry.bits = widget.NewLabel("0 бит")
+	label := widget.NewLabelWithStyle("Passphrase", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	entry.bits = widget.NewLabel("0 bits")
 
 	input := widget.NewPasswordEntry()
-	input.SetPlaceHolder("Введите секретную фразу...")
+	input.SetPlaceHolder("Enter secret passphrase...")
 	input.OnChanged = func(s string) {
 		ui.updateRite(entry, []interface{}{s})
 	}
@@ -152,17 +152,17 @@ func (ui *WalletUI) addFileRite() {
 	}
 	entry := &riteEntry{id: id, riteType: "FILE"}
 
-	label := widget.NewLabelWithStyle("Файл", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	entry.bits = widget.NewLabel("0 бит")
+	label := widget.NewLabelWithStyle("File", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	entry.bits = widget.NewLabel("0 bits")
 
 	pathEntry := widget.NewEntry()
-	pathEntry.SetPlaceHolder("Путь к файлу...")
+	pathEntry.SetPlaceHolder("File path...")
 
 	offsetEntry := widget.NewEntry()
 	offsetEntry.SetText("0")
 
 	saltEntry := widget.NewPasswordEntry()
-	saltEntry.SetPlaceHolder("Соль (секретная фраза для файла)...")
+	saltEntry.SetPlaceHolder("Salt (secret phrase for file)...")
 
 	update := func() {
 		if pathEntry.Text == "" {
@@ -184,7 +184,7 @@ func (ui *WalletUI) addFileRite() {
 	offsetEntry.OnChanged = func(_ string) { update() }
 	saltEntry.OnChanged = func(_ string) { update() }
 
-	browseBtn := widget.NewButtonWithIcon("Выбрать", theme.FolderOpenIcon(), func() {
+	browseBtn := widget.NewButtonWithIcon("Browse", theme.FolderOpenIcon(), func() {
 		dialog.ShowFileOpen(func(f fyne.URIReadCloser, err error) {
 			if err != nil || f == nil {
 				return
@@ -201,8 +201,8 @@ func (ui *WalletUI) addFileRite() {
 
 	header := container.NewBorder(nil, nil, label, container.NewHBox(entry.bits, removeBtn))
 	pathRow := container.NewBorder(nil, nil, nil, browseBtn, pathEntry)
-	offsetRow := container.NewGridWithColumns(2, widget.NewLabel("Смещение (байты):"), offsetEntry)
-	saltRow := container.NewVBox(widget.NewLabel("Соль:"), saltEntry)
+	offsetRow := container.NewGridWithColumns(2, widget.NewLabel("Offset (bytes):"), offsetEntry)
+	saltRow := container.NewVBox(widget.NewLabel("Salt:"), saltEntry)
 
 	entry.row = container.NewVBox(header, pathRow, offsetRow, saltRow)
 	ui.appendRite(entry)
@@ -222,8 +222,8 @@ func (ui *WalletUI) addCityTimeRite() {
 	var filtered []string
 	selectedCity := ""
 
-	label := widget.NewLabelWithStyle("Город и время", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	entry.bits = widget.NewLabel("0 бит")
+	label := widget.NewLabelWithStyle("City & Time", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	entry.bits = widget.NewLabel("0 bits")
 
 	removeBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
 		ui.removeRite(entry)
@@ -231,7 +231,7 @@ func (ui *WalletUI) addCityTimeRite() {
 	header := container.NewBorder(nil, nil, label, container.NewHBox(entry.bits, removeBtn))
 
 	timeEntry := widget.NewEntry()
-	timeEntry.SetPlaceHolder("ЧЧ:ММ (напр. 14:30)")
+	timeEntry.SetPlaceHolder("HH:MM (e.g. 14:30)")
 
 	update := func() {
 		if selectedCity == "" || timeEntry.Text == "" {
@@ -252,7 +252,7 @@ func (ui *WalletUI) addCityTimeRite() {
 	timeEntry.OnChanged = func(_ string) { update() }
 
 	selectedLabel := widget.NewLabel("")
-	timeRow := container.NewGridWithColumns(2, widget.NewLabel("Время:"), timeEntry)
+	timeRow := container.NewGridWithColumns(2, widget.NewLabel("Time:"), timeEntry)
 
 	// поисковый блок — поле + список
 	var cityList *widget.List
@@ -265,7 +265,7 @@ func (ui *WalletUI) addCityTimeRite() {
 	)
 
 	searchEntry := widget.NewEntry()
-	searchEntry.SetPlaceHolder("Начните вводить город...")
+	searchEntry.SetPlaceHolder("Start typing city...")
 
 	cityScroll := container.NewVScroll(cityList)
 	cityScroll.SetMinSize(fyne.NewSize(0, 120))
@@ -305,7 +305,7 @@ func (ui *WalletUI) addCityTimeRite() {
 
 	// по клику на выбранный город — возвращаем поиск
 	selectedLabel.Hide()
-	changeBtn := widget.NewButtonWithIcon("Изменить", theme.SearchIcon(), func() {
+	changeBtn := widget.NewButtonWithIcon("Change", theme.SearchIcon(), func() {
 		selectedCity = ""
 		selectedLabel.Hide()
 		searchEntry.SetText("")
@@ -335,10 +335,10 @@ func (ui *WalletUI) updateRite(entry *riteEntry, payload []interface{}) {
 	entropy, _ := ui.ritual.GetEntropy()
 	for _, re := range entropy.Rites {
 		if re.ID == entry.id {
-			entry.bits.SetText(fmt.Sprintf("%.1f бит", re.Bits))
+			entry.bits.SetText(fmt.Sprintf("%.1f bits", re.Bits))
 		}
 	}
-	ui.totalBits.SetText(fmt.Sprintf("Энтропия: %.1f бит", entropy.Total))
+	ui.totalBits.SetText(fmt.Sprintf("Entropy: %.1f bits", entropy.Total))
 }
 
 func (ui *WalletUI) removeRite(entry *riteEntry) {
@@ -356,18 +356,18 @@ func (ui *WalletUI) removeRite(entry *riteEntry) {
 	ui.riteBox.Refresh()
 
 	entropy, _ := ui.ritual.GetEntropy()
-	ui.totalBits.SetText(fmt.Sprintf("Энтропия: %.1f бит", entropy.Total))
+	ui.totalBits.SetText(fmt.Sprintf("Entropy: %.1f bits", entropy.Total))
 }
 
 func (ui *WalletUI) onFinalize() {
 	if len(ui.riteList) == 0 {
-		dialog.ShowInformation("Ошибка", "Добавьте хотя бы один обряд", ui.window)
+		dialog.ShowInformation("Error", "Add at least one rite", ui.window)
 		return
 	}
 	entropy, _ := ui.ritual.GetEntropy()
 	if entropy.Total < 80 {
-		dialog.ShowConfirm("Низкая энтропия",
-			fmt.Sprintf("Суммарная энтропия %.1f бит — меньше рекомендуемых 80 бит.\nПродолжить?", entropy.Total),
+		dialog.ShowConfirm("Low entropy",
+			fmt.Sprintf("Total entropy %.1f bits — below recommended 80 bits.\nContinue?", entropy.Total),
 			func(ok bool) {
 				if ok {
 					ui.doFinalize()
@@ -380,7 +380,7 @@ func (ui *WalletUI) onFinalize() {
 
 func (ui *WalletUI) doFinalize() {
 	ui.finalizeBtn.Disable()
-	ui.finalizeBtn.SetText("Открываем кошелёк...")
+	ui.finalizeBtn.SetText("Opening wallet...")
 
 	go func() {
 		masterKey, _, err := ui.ritual.Finalize()
@@ -388,7 +388,7 @@ func (ui *WalletUI) doFinalize() {
 			fyne.Do(func() {
 				dialog.ShowError(err, ui.window)
 				ui.finalizeBtn.Enable()
-				ui.finalizeBtn.SetText("Открыть кошелёк")
+				ui.finalizeBtn.SetText("Open Wallet")
 			})
 			return
 		}
@@ -397,7 +397,7 @@ func (ui *WalletUI) doFinalize() {
 			fyne.Do(func() {
 				dialog.ShowError(err, ui.window)
 				ui.finalizeBtn.Enable()
-				ui.finalizeBtn.SetText("Открыть кошелёк")
+				ui.finalizeBtn.SetText("Open Wallet")
 			})
 			return
 		}
@@ -412,35 +412,35 @@ func (ui *WalletUI) doFinalize() {
 // ── Экран кошелька ────────────────────────────────────────────
 
 func (ui *WalletUI) buildWalletScreen() fyne.CanvasObject {
-	title := widget.NewLabelWithStyle("LTC Кошелёк",
+	title := widget.NewLabelWithStyle("LTC Wallet",
 		fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
 
-	addrTitle := widget.NewLabelWithStyle("Адрес:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	addrTitle := widget.NewLabelWithStyle("Address:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
 	ui.addressLabel = widget.NewLabel(ui.currentWallet.Address)
 	ui.addressLabel.Wrapping = fyne.TextWrapBreak
-	copyAddrBtn := widget.NewButtonWithIcon("Копировать адрес", theme.ContentCopyIcon(), func() {
+	copyAddrBtn := widget.NewButtonWithIcon("Copy address", theme.ContentCopyIcon(), func() {
 		ui.window.Clipboard().SetContent(ui.currentWallet.Address)
 	})
 
-	mnemoTitle := widget.NewLabelWithStyle("Мнемоника (24 слова):", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	mnemoTitle := widget.NewLabelWithStyle("Mnemonic (24 words):", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
 	ui.mnemonicLabel = widget.NewLabel(ui.currentWallet.Mnemonic)
 	ui.mnemonicLabel.Wrapping = fyne.TextWrapBreak
-	copyMnemoBtn := widget.NewButtonWithIcon("Копировать мнемонику", theme.ContentCopyIcon(), func() {
+	copyMnemoBtn := widget.NewButtonWithIcon("Copy mnemonic", theme.ContentCopyIcon(), func() {
 		ui.window.Clipboard().SetContent(ui.currentWallet.Mnemonic)
 	})
 
 	warning := widget.NewLabelWithStyle(
-		"⚠ Мнемоника даёт полный доступ к кошельку — храните её в надёжном месте",
+		"⚠ Mnemonic gives full wallet access — keep it in a safe place",
 		fyne.TextAlignCenter, fyne.TextStyle{Italic: true})
 
-	balanceTitle := widget.NewLabelWithStyle("Баланс:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	ui.balanceLabel = widget.NewLabel("Загрузка...")
+	balanceTitle := widget.NewLabelWithStyle("Balance:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	ui.balanceLabel = widget.NewLabel("Loading...")
 	ui.serverLabel = widget.NewLabel("")
-	ui.refreshBtn = widget.NewButtonWithIcon("Обновить", theme.ViewRefreshIcon(), func() {
+	ui.refreshBtn = widget.NewButtonWithIcon("Refresh", theme.ViewRefreshIcon(), func() {
 		ui.refreshBalance()
 	})
 
-	backBtn := widget.NewButtonWithIcon("← Новый ритуал", theme.NavigateBackIcon(), func() {
+	backBtn := widget.NewButtonWithIcon("← New Ritual", theme.NavigateBackIcon(), func() {
 		ui.ritual.Free()
 		ui.ritual = NewRitual()
 		ui.riteList = nil
@@ -464,7 +464,7 @@ func (ui *WalletUI) buildWalletScreen() fyne.CanvasObject {
 			copyMnemoBtn,
 			warning,
 			widget.NewSeparator(),
-			widget.NewButtonWithIcon("Отправить", theme.MailSendIcon(), func() {
+			widget.NewButtonWithIcon("Send", theme.MailSendIcon(), func() {
 				ui.showSendDialog()
 			}),
 			balanceTitle,
@@ -477,7 +477,7 @@ func (ui *WalletUI) buildWalletScreen() fyne.CanvasObject {
 
 func (ui *WalletUI) refreshBalance() {
 	fyne.Do(func() {
-		ui.balanceLabel.SetText("Загрузка...")
+		ui.balanceLabel.SetText("Loading...")
 		ui.refreshBtn.Disable()
 	})
 
@@ -488,12 +488,12 @@ func (ui *WalletUI) refreshBalance() {
 			servers := ui.config.Servers[ui.config.Coin]
 			client, server, err := ConnectElectrum(servers)
 			if err != nil {
-				fyne.Do(func() { ui.balanceLabel.SetText("Нет подключения к сети") })
+				fyne.Do(func() { ui.balanceLabel.SetText("No network connection") })
 				return
 			}
 			ui.electrum = client
 			ui.currentServer = server
-			fyne.Do(func() { ui.serverLabel.SetText("Сервер: " + server) })
+			fyne.Do(func() { ui.serverLabel.SetText("Server: " + server) })
 		}
 
 		balance, err := ui.electrum.GetBalance(ui.currentWallet.Address)
@@ -501,7 +501,7 @@ func (ui *WalletUI) refreshBalance() {
 			ui.electrum.Close()
 			ui.electrum = nil
 			errMsg := err.Error()
-			fyne.Do(func() { ui.balanceLabel.SetText("Ошибка: " + errMsg) })
+			fyne.Do(func() { ui.balanceLabel.SetText("Error: " + errMsg) })
 			return
 		}
 
@@ -519,7 +519,7 @@ func (ui *WalletUI) refreshBalance() {
 // showSendDialog открывает диалог отправки LTC
 func (ui *WalletUI) showSendDialog() {
 	if ui.electrum == nil {
-		dialog.ShowInformation("Ошибка", "Нет подключения к сети. Обновите баланс сначала.", ui.window)
+		dialog.ShowInformation("Error", "No network connection. Refresh balance first.", ui.window)
 		return
 	}
 
@@ -527,9 +527,9 @@ func (ui *WalletUI) showSendDialog() {
 	toEntry.SetPlaceHolder("LTC адрес получателя...")
 
 	amountEntry := widget.NewEntry()
-	amountEntry.SetPlaceHolder("Сумма в LTC (напр. 0.5)")
+	amountEntry.SetPlaceHolder("Amount in LTC (e.g. 0.5)")
 
-	feeLabel := widget.NewLabel("Комиссия: загрузка...")
+	feeLabel := widget.NewLabel("Fee: loading...")
 	totalLabel := widget.NewLabel("")
 	statusLabel := widget.NewLabel("")
 
@@ -550,7 +550,7 @@ func (ui *WalletUI) showSendDialog() {
 		}
 		feeSat := CalcFee(currentFeePerKb, 1, 2)
 		feeLTC := float64(feeSat) / 1e8
-		totalLabel.SetText(fmt.Sprintf("Итого спишется: %.8f + %.8f = %.8f LTC", amt, feeLTC, amt+feeLTC))
+		totalLabel.SetText(fmt.Sprintf("Total: %.8f + %.8f = %.8f LTC", amt, feeLTC, amt+feeLTC))
 	}
 	amountEntry.OnChanged = func(_ string) { updateTotal() }
 
@@ -562,7 +562,7 @@ func (ui *WalletUI) showSendDialog() {
 		feeSat := CalcFee(currentFeePerKb, 1, 1) // 1 output — без сдачи
 		maxAmt := currentBalance - float64(feeSat)/1e8
 		if maxAmt <= 0 {
-			dialog.ShowInformation("Ошибка", "Недостаточно средств для покрытия комиссии", ui.window)
+			dialog.ShowInformation("Error", "Insufficient funds to cover the fee", ui.window)
 			return
 		}
 		amountEntry.SetText(fmt.Sprintf("%.8f", maxAmt))
@@ -579,13 +579,13 @@ func (ui *WalletUI) showSendDialog() {
 		// комиссия
 		fee, err := ui.electrum.EstimateFee(6)
 		if err != nil {
-			fyne.Do(func() { feeLabel.SetText("Комиссия: ошибка") })
+			fyne.Do(func() { feeLabel.SetText("Fee: error") })
 			return
 		}
 		currentFeePerKb = fee
 		feeSat := CalcFee(fee, 1, 2)
 		fyne.Do(func() {
-			feeLabel.SetText(fmt.Sprintf("Комиссия: ~%.8f LTC", float64(feeSat)/1e8))
+			feeLabel.SetText(fmt.Sprintf("Fee: ~%.8f LTC", float64(feeSat)/1e8))
 			updateTotal()
 		})
 	}()
@@ -593,17 +593,17 @@ func (ui *WalletUI) showSendDialog() {
 	amountRow := container.NewBorder(nil, nil, nil, maxBtn, amountEntry)
 
 	content := container.NewVBox(
-		widget.NewLabelWithStyle("Отправить LTC", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
-		widget.NewLabel("Адрес получателя:"),
+		widget.NewLabelWithStyle("Send LTC", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+		widget.NewLabel("Recipient address:"),
 		toEntry,
-		widget.NewLabel("Сумма (LTC):"),
+		widget.NewLabel("Amount (LTC):"),
 		amountRow,
 		feeLabel,
 		totalLabel,
 		statusLabel,
 	)
 
-	dialog.ShowCustomConfirm("Отправка", "Отправить", "Отмена", content, func(ok bool) {
+	dialog.ShowCustomConfirm("Send", "Confirm", "Cancel", content, func(ok bool) {
 		if !ok {
 			return
 		}
@@ -613,20 +613,20 @@ func (ui *WalletUI) showSendDialog() {
 
 func (ui *WalletUI) doSend(toAddr, amountStr string, statusLabel *widget.Label) {
 	if toAddr == "" || amountStr == "" {
-		dialog.ShowInformation("Ошибка", "Заполните все поля", ui.window)
+		dialog.ShowInformation("Error", "Fill in all fields", ui.window)
 		return
 	}
 
 	// парсим сумму
 	var amountLTC float64
 	if _, err := fmt.Sscanf(amountStr, "%f", &amountLTC); err != nil || amountLTC <= 0 {
-		dialog.ShowInformation("Ошибка", "Неверная сумма", ui.window)
+		dialog.ShowInformation("Error", "Invalid amount", ui.window)
 		return
 	}
 	amountSat := int64(amountLTC * 1e8)
 
 	go func() {
-		fyne.Do(func() { statusLabel.SetText("Получаем UTXOs...") })
+		fyne.Do(func() { statusLabel.SetText("Fetching UTXOs...") })
 
 		utxos, err := ui.electrum.GetUTXOs(ui.currentWallet.Address)
 		if err != nil {
@@ -634,11 +634,11 @@ func (ui *WalletUI) doSend(toAddr, amountStr string, statusLabel *widget.Label) 
 			return
 		}
 		if len(utxos) == 0 {
-			dialog.ShowInformation("Ошибка", "Нет доступных средств для отправки", ui.window)
+			dialog.ShowInformation("Error", "No funds available", ui.window)
 			return
 		}
 
-		fyne.Do(func() { statusLabel.SetText("Рассчитываем комиссию...") })
+		fyne.Do(func() { statusLabel.SetText("Calculating fee...") })
 
 		feePerKb, err := ui.electrum.EstimateFee(6)
 		if err != nil {
@@ -675,37 +675,40 @@ func (ui *WalletUI) doSend(toAddr, amountStr string, statusLabel *widget.Label) 
 			})
 		}
 
-		fyne.Do(func() { statusLabel.SetText("Подписываем транзакцию...") })
+		fyne.Do(func() { statusLabel.SetText("Signing transaction...") })
 
 		txHex, err := BuildAndSign(selected, outputs, ui.currentWallet.PrivateKey, ui.currentWallet.PublicKey)
 		if err != nil {
-			dialog.ShowError(fmt.Errorf("подписание: %w", err), ui.window)
+			dialog.ShowError(fmt.Errorf("signing: %w", err), ui.window)
 			return
 		}
 
 		// показываем подтверждение перед отправкой
 		confirmMsg := fmt.Sprintf(
-			"Отправить %.8f LTC\nПолучатель: %s\nКомиссия: %.8f LTC\nПродолжить?",
+			"Send %.8f LTC\nRecipient: %s\nFee: %.8f LTC\nContinue?",
 			amountLTC, toAddr, float64(feeSat)/1e8,
 		)
 
-		dialog.ShowConfirm("Подтверждение", confirmMsg, func(confirmed bool) {
-			if !confirmed {
-				return
-			}
-			fyne.Do(func() { statusLabel.SetText("Отправляем...") })
-			go func() {
-				txid, err := ui.electrum.Broadcast(txHex)
-				if err != nil {
-					dialog.ShowError(fmt.Errorf("broadcast: %w", err), ui.window)
+		fyne.Do(func() {
+			dialog.ShowConfirm("Confirmation", confirmMsg, func(confirmed bool) {
+				if !confirmed {
 					return
 				}
-				dialog.ShowInformation("Успешно!",
-					fmt.Sprintf("Транзакция отправлена!\nTXID: %s", txid), ui.window)
-				// обновляем баланс
-				ui.refreshBalance()
-			}()
-		}, ui.window)
+				fyne.Do(func() { statusLabel.SetText("Broadcasting...") })
+				go func() {
+					txid, err := ui.electrum.Broadcast(txHex)
+					if err != nil {
+						fyne.Do(func() { dialog.ShowError(fmt.Errorf("broadcast: %w", err), ui.window) })
+						return
+					}
+					fyne.Do(func() {
+						dialog.ShowInformation("Success!",
+							fmt.Sprintf("Transaction sent!\nTXID: %s", stripHTML(txid)), ui.window)
+					})
+					ui.refreshBalance()
+				}()
+			}, ui.window)
+		})
 	}()
 }
 
@@ -720,8 +723,8 @@ func (ui *WalletUI) addSequenceRite() {
 	entry := &riteEntry{id: id, riteType: "SEQUENCE"}
 	ds := GetSequenceDataset()
 
-	label := widget.NewLabelWithStyle("Последовательность", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	entry.bits = widget.NewLabel("0 бит")
+	label := widget.NewLabelWithStyle("Sequence", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	entry.bits = widget.NewLabel("0 bits")
 	removeBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() { ui.removeRite(entry) })
 	header := container.NewBorder(nil, nil, label, container.NewHBox(entry.bits, removeBtn))
 
@@ -747,7 +750,7 @@ func (ui *WalletUI) addSequenceRite() {
 		ui.updateRite(entry, []interface{}{selected})
 	}
 
-	clearBtn := widget.NewButton("Очистить", func() {
+	clearBtn := widget.NewButton("Clear", func() {
 		selected = nil
 		updateSeq()
 	})
@@ -768,7 +771,7 @@ func (ui *WalletUI) addSequenceRite() {
 
 	entry.row = container.NewVBox(
 		header,
-		widget.NewLabel("Нажмите символы в нужном порядке:"),
+		widget.NewLabel("Tap symbols in order:"),
 		btnGrid,
 		container.NewHBox(currentLabel, clearBtn),
 	)
@@ -808,14 +811,14 @@ func (ui *WalletUI) addRuneGridRite() {
 	entry := &riteEntry{id: id, riteType: "RUNEGRID"}
 	ds := GetRuneDataset()
 
-	label := widget.NewLabelWithStyle("Руны", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	entry.bits = widget.NewLabel("0 бит")
+	label := widget.NewLabelWithStyle("Runes", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	entry.bits = widget.NewLabel("0 bits")
 	removeBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() { ui.removeRite(entry) })
 	header := container.NewBorder(nil, nil, label, container.NewHBox(entry.bits, removeBtn))
 
 	var placements []interface{}
 	selectedRune := -1
-	selectedRuneLabel := widget.NewLabel("Выберите руну, затем ячейку")
+	selectedRuneLabel := widget.NewLabel("Select a rune, then a cell")
 
 	gridSize := ds.GridSize
 	if gridSize == 0 {
@@ -900,7 +903,7 @@ func (ui *WalletUI) addRuneGridRite() {
 				runeBtnRefs[selectedRune].Refresh()
 			}
 			selectedRune = -1
-			selectedRuneLabel.SetText("Выберите руну, затем ячейку")
+			selectedRuneLabel.SetText("Select a rune, then a cell")
 		})
 		gridBtns[i] = btn
 		gridContainer.Add(btn)
@@ -927,7 +930,7 @@ func (ui *WalletUI) addRuneGridRite() {
 				selectedRune = capturedIdx
 				runeBtnRefs[capturedIdx].Selected = true
 				runeBtnRefs[capturedIdx].Refresh()
-				selectedRuneLabel.SetText("Выбрана: " + capturedName + " — нажмите ячейку")
+				selectedRuneLabel.SetText("Selected: " + capturedName + " — tap a cell")
 			})
 			runeBtnRefs = append(runeBtnRefs, btn)
 			runeBtns.Add(btn)
@@ -936,14 +939,14 @@ func (ui *WalletUI) addRuneGridRite() {
 			lbl := runeLabel(capturedIdx, ds.RuneNames)
 			btn := widget.NewButton(lbl, func() {
 				selectedRune = capturedIdx
-				selectedRuneLabel.SetText("Выбрана: " + capturedName + " (" + capturedRune + ") — нажмите ячейку")
+				selectedRuneLabel.SetText("Selected: " + capturedName + " (" + capturedRune + ") — tap a cell")
 			})
 			runeBtnRefs = append(runeBtnRefs, nil)
 			runeBtns.Add(btn)
 		}
 	}
 
-	clearBtn := widget.NewButton("Очистить", func() {
+	clearBtn := widget.NewButton("Clear", func() {
 		placements = nil
 		// сбрасываем выделение SVG кнопки
 		if selectedRune >= 0 && selectedRune < len(runeBtnRefs) && runeBtnRefs[selectedRune] != nil {
@@ -951,17 +954,17 @@ func (ui *WalletUI) addRuneGridRite() {
 			runeBtnRefs[selectedRune].Refresh()
 		}
 		selectedRune = -1
-		selectedRuneLabel.SetText("Выберите руну, затем ячейку")
+		selectedRuneLabel.SetText("Select a rune, then a cell")
 		refreshGrid()
 		ui.updateRite(entry, placements)
 	})
 
 	entry.row = container.NewVBox(
 		header,
-		widget.NewLabel("Выберите руну:"),
+		widget.NewLabel("Select rune:"),
 		runeBtns,
 		selectedRuneLabel,
-		widget.NewLabel("Сетка 3×3:"),
+		widget.NewLabel("Grid 3×3:"),
 		gridContainer,
 		clearBtn,
 	)
@@ -984,14 +987,14 @@ func (ui *WalletUI) addConstellationRite() {
 		steps = 18
 	}
 
-	label := widget.NewLabelWithStyle("Созвездие", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	entry.bits = widget.NewLabel("0 бит")
+	label := widget.NewLabelWithStyle("Constellation", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	entry.bits = widget.NewLabel("0 bits")
 	removeBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() { ui.removeRite(entry) })
 	header := container.NewBorder(nil, nil, label, container.NewHBox(entry.bits, removeBtn))
 
 	rotation := 0
-	selectedLabel := widget.NewLabel("Звёзды: нет")
-	rotLabel := widget.NewLabel(fmt.Sprintf("Поворот: 0/%d", steps))
+	selectedLabel := widget.NewLabel("Stars: none")
+	rotLabel := widget.NewLabel(fmt.Sprintf("Rotation: 0/%d", steps))
 
 	var cw *ConstellationWidget
 	var clickOrder []int // порядок кликов
@@ -1006,11 +1009,11 @@ func (ui *WalletUI) addConstellationRite() {
 			}
 		}
 		ui.updateRite(entry, []interface{}{float64(rotation), selectedStars})
-		rotLabel.SetText(fmt.Sprintf("Поворот: %d/%d", rotation, steps))
+		rotLabel.SetText(fmt.Sprintf("Rotation: %d/%d", rotation, steps))
 		if len(names) == 0 {
-			selectedLabel.SetText("Звёзды: нет")
+			selectedLabel.SetText("Stars: none")
 		} else {
-			selectedLabel.SetText("Выбраны: " + strings.Join(names, ", "))
+			selectedLabel.SetText("Selected: " + strings.Join(names, ", "))
 		}
 	}
 
@@ -1047,7 +1050,7 @@ func (ui *WalletUI) addConstellationRite() {
 		updatePayload()
 	})
 
-	clearBtn := widget.NewButton("Очистить", func() {
+	clearBtn := widget.NewButton("Clear", func() {
 		for i := range cw.Selected {
 			cw.Selected[i] = false
 		}
@@ -1083,7 +1086,7 @@ func readFileSlice(path string, offset int64, size int) (string, error) {
 	buf := make([]byte, size)
 	n, _ := f.Read(buf)
 	if n == 0 {
-		return "", fmt.Errorf("файл пуст или смещение за пределами")
+		return "", fmt.Errorf("file is empty or offset out of range")
 	}
 	return base64.StdEncoding.EncodeToString(buf[:n]), nil
 }
@@ -1093,9 +1096,9 @@ var historyBox *fyne.Container
 
 // showHistory добавляет секцию истории транзакций в экран кошелька
 func (ui *WalletUI) buildHistorySection() fyne.CanvasObject {
-	historyTitle := widget.NewLabelWithStyle("Последние транзакции:",
+	historyTitle := widget.NewLabelWithStyle("Recent transactions:",
 		fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	historyBox = container.NewVBox(widget.NewLabel("Загрузка..."))
+	historyBox = container.NewVBox(widget.NewLabel("Loading..."))
 	return container.NewVBox(widget.NewSeparator(), historyTitle, historyBox)
 }
 
@@ -1111,14 +1114,14 @@ func (ui *WalletUI) loadHistory() {
 		items, err := client.GetHistory(wallet.Address, 10)
 		if err != nil {
 			fyne.Do(func() {
-				historyBox.Objects = []fyne.CanvasObject{widget.NewLabel("Ошибка загрузки истории")}
+				historyBox.Objects = []fyne.CanvasObject{widget.NewLabel("Failed to load history")}
 				historyBox.Refresh()
 			})
 			return
 		}
 		if len(items) == 0 {
 			fyne.Do(func() {
-				historyBox.Objects = []fyne.CanvasObject{widget.NewLabel("Транзакций пока нет")}
+				historyBox.Objects = []fyne.CanvasObject{widget.NewLabel("No transactions yet")}
 				historyBox.Refresh()
 			})
 			return
@@ -1140,9 +1143,9 @@ func (ui *WalletUI) loadHistory() {
 				amountStr = "-" + amountStr
 			}
 
-			status := fmt.Sprintf("блок %d", item.Height)
+			status := fmt.Sprintf("block %d", item.Height)
 			if item.Height == 0 {
-				status = "неподтв."
+				status = "unconfirmed"
 			}
 
 			label := widget.NewLabel(fmt.Sprintf("%-18s  %-26s  %s", amountStr, short, status))
@@ -1159,4 +1162,12 @@ func (ui *WalletUI) loadHistory() {
 			historyBox.Refresh()
 		})
 	}()
+}
+// stripHTML удаляет известные HTML теги из строки
+func stripHTML(s string) string {
+	tags := []string{"<br/>", "<br>", "<b>", "</b>", "<i>", "</i>", "<p>", "</p>"}
+	for _, tag := range tags {
+		s = strings.ReplaceAll(s, tag, " ")
+	}
+	return strings.TrimSpace(s)
 }

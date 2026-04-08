@@ -59,7 +59,7 @@ func ConnectElectrum(servers []string) (*ElectrumClient, string, error) {
 		}
 		return client, server, nil
 	}
-	return nil, "", fmt.Errorf("не удалось подключиться ни к одному серверу")
+	return nil, "", fmt.Errorf("failed to connect to any server")
 }
 
 // dialElectrum подключается к серверу (SSL или TCP)

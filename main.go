@@ -7,7 +7,7 @@ func main() {
 	if err != nil {
 		cfg = DefaultConfig()
 		if err := SaveConfig("config.json", cfg); err != nil {
-			fmt.Println("Ошибка сохранения конфига:", err)
+			fmt.Println("Error saving config:", err)
 		}
 	}
 	RunUI(cfg)

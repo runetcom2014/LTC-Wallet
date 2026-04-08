@@ -28,10 +28,10 @@ type TxOutput struct {
 // Возвращает hex транзакции готовой к broadcast
 func BuildAndSign(utxos []UTXO, outputs []TxOutput, privKey []byte, pubKey []byte) (string, error) {
 	if len(utxos) == 0 {
-		return "", errors.New("нет UTXOs")
+		return "", errors.New("no UTXOs")
 	}
 	if len(outputs) == 0 {
-		return "", errors.New("нет получателей")
+		return "", errors.New("no recipients")
 	}
 
 	// --- сборка транзакции для подписания ---
@@ -379,7 +379,7 @@ func SelectUTXOs(utxos []UTXO, targetSatoshi, feeSatoshi int64) ([]UTXO, int64, 
 		}
 	}
 	if total < needed {
-		return nil, 0, fmt.Errorf("недостаточно средств: нужно %.8f LTC, доступно %.8f LTC",
+		return nil, 0, fmt.Errorf("insufficient funds: need %.8f LTC, available %.8f LTC",
 			float64(needed)/1e8, float64(total)/1e8)
 	}
 	change := total - needed
