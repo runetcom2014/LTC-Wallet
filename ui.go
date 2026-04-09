@@ -17,10 +17,13 @@ import (
 
 // riteEntry — один обряд в UI
 type riteEntry struct {
-	id       int
-	riteType string
-	bits     *widget.Label
-	row      *fyne.Container
+	id        int
+	riteType  string
+	bits      *widget.Label
+	row       *fyne.Container // полная форма
+	collapsed *fyne.Container // свёрнутая строка
+	wrapper   *fyne.Container // содержит либо row либо collapsed
+	summary   string          // краткое описание для свёрнутого вида
 }
 
 // WalletUI — главное окно приложения
@@ -47,6 +50,7 @@ type WalletUI struct {
 	currentWallet *WalletKeys
 	electrum      *ElectrumClient
 	currentServer string
+	addButtons    *fyne.Container // блок добавления обрядов
 }
 
 // RunUI запускает интерфейс
@@ -54,7 +58,7 @@ func RunUI(cfg Config) {
 	a := app.New()
 	a.Settings().SetTheme(newRunicTheme())
 	w := a.NewWindow("LTC Wallet")
-	w.Resize(fyne.NewSize(700, 780))
+	w.Resize(fyne.NewSize(500, 900))
 
 	ui := &WalletUI{
 		app:    a,
@@ -93,7 +97,7 @@ func (ui *WalletUI) buildRitualScreen() fyne.CanvasObject {
 		ui.addConstellationRite()
 	})
 
-	addButtons := container.NewGridWithColumns(3, addStr, addFile, addCity, addSeq, addRune, addConst)
+	ui.addButtons = container.NewGridWithColumns(3, addStr, addFile, addCity, addSeq, addRune, addConst)
 	ui.riteBox = container.NewVBox()
 
 	ui.totalBits = widget.NewLabelWithStyle("Entropy: 0.0 bits",
@@ -104,10 +108,9 @@ func (ui *WalletUI) buildRitualScreen() fyne.CanvasObject {
 	ui.finalizeBtn.Importance = widget.HighImportance
 
 	scroll := container.NewVScroll(ui.riteBox)
-	scroll.SetMinSize(fyne.NewSize(0, 320))
 
 	return container.NewBorder(
-		container.NewVBox(title, addButtons),
+		container.NewVBox(title, ui.addButtons),
 		container.NewVBox(ui.totalBits, ui.finalizeBtn),
 		nil, nil,
 		scroll,
@@ -133,11 +136,7 @@ func (ui *WalletUI) addStringRite() {
 		ui.updateRite(entry, []interface{}{s})
 	}
 
-	removeBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		ui.removeRite(entry)
-	})
-
-	header := container.NewBorder(nil, nil, label, container.NewHBox(entry.bits, removeBtn))
+	header := container.NewBorder(nil, nil, label, entry.bits)
 	entry.row = container.NewVBox(header, input)
 	ui.appendRite(entry)
 }
@@ -195,11 +194,7 @@ func (ui *WalletUI) addFileRite() {
 		}, ui.window)
 	})
 
-	removeBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		ui.removeRite(entry)
-	})
-
-	header := container.NewBorder(nil, nil, label, container.NewHBox(entry.bits, removeBtn))
+	header := container.NewBorder(nil, nil, label, entry.bits)
 	pathRow := container.NewBorder(nil, nil, nil, browseBtn, pathEntry)
 	offsetRow := container.NewGridWithColumns(2, widget.NewLabel("Offset (bytes):"), offsetEntry)
 	saltRow := container.NewVBox(widget.NewLabel("Salt:"), saltEntry)
@@ -225,10 +220,7 @@ func (ui *WalletUI) addCityTimeRite() {
 	label := widget.NewLabelWithStyle("City & Time", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
 	entry.bits = widget.NewLabel("0 bits")
 
-	removeBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		ui.removeRite(entry)
-	})
-	header := container.NewBorder(nil, nil, label, container.NewHBox(entry.bits, removeBtn))
+	header := container.NewBorder(nil, nil, label, entry.bits)
 
 	timeEntry := widget.NewEntry()
 	timeEntry.SetPlaceHolder("HH:MM (e.g. 14:30)")
@@ -324,8 +316,52 @@ func (ui *WalletUI) addCityTimeRite() {
 
 func (ui *WalletUI) appendRite(entry *riteEntry) {
 	ui.riteList = append(ui.riteList, entry)
-	ui.riteBox.Add(entry.row)
+
+	// скрываем блок добавления пока обряд открыт
+	ui.addButtons.Hide()
+
+	// кнопка Done — сворачивает обряд
+	doneBtn := widget.NewButtonWithIcon("Done", theme.ConfirmIcon(), func() {
+		ui.collapseRite(entry)
+	})
+	doneBtn.Importance = widget.SuccessImportance
+	entry.row.Add(doneBtn)
+	entry.row.Refresh()
+
+	entry.wrapper = container.NewVBox(entry.row)
+	ui.riteBox.Add(entry.wrapper)
 	ui.riteBox.Refresh()
+}
+
+func (ui *WalletUI) collapseRite(entry *riteEntry) {
+	// краткое описание — тип + энтропия
+	bitsText := ""
+	if entry.bits != nil {
+		bitsText = entry.bits.Text
+	}
+	label := widget.NewLabel(fmt.Sprintf("%-16s  %s", entry.riteType, bitsText))
+	label.TextStyle = fyne.TextStyle{Monospace: true}
+
+	// кнопка expand — раскрывает обряд обратно
+	expandBtn := widget.NewButtonWithIcon("", theme.MenuExpandIcon(), func() {
+		ui.addButtons.Hide()
+		entry.wrapper.Objects = []fyne.CanvasObject{entry.row}
+		entry.wrapper.Refresh()
+	})
+
+	// кнопка удаления
+	deleteBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
+		ui.removeRite(entry)
+	})
+
+	entry.collapsed = container.NewBorder(nil, nil, nil,
+		container.NewHBox(expandBtn, deleteBtn), label)
+
+	entry.wrapper.Objects = []fyne.CanvasObject{entry.collapsed}
+	entry.wrapper.Refresh()
+
+	// показываем блок добавления
+	ui.addButtons.Show()
 }
 
 func (ui *WalletUI) updateRite(entry *riteEntry, payload []interface{}) {
@@ -352,8 +388,11 @@ func (ui *WalletUI) removeRite(entry *riteEntry) {
 			break
 		}
 	}
-	ui.riteBox.Remove(entry.row)
+	ui.riteBox.Remove(entry.wrapper)
 	ui.riteBox.Refresh()
+
+	// показываем блок добавления
+	ui.addButtons.Show()
 
 	entropy, _ := ui.ritual.GetEntropy()
 	ui.totalBits.SetText(fmt.Sprintf("Entropy: %.1f bits", entropy.Total))
@@ -725,8 +764,7 @@ func (ui *WalletUI) addSequenceRite() {
 
 	label := widget.NewLabelWithStyle("Sequence", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
 	entry.bits = widget.NewLabel("0 bits")
-	removeBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() { ui.removeRite(entry) })
-	header := container.NewBorder(nil, nil, label, container.NewHBox(entry.bits, removeBtn))
+	header := container.NewBorder(nil, nil, label, entry.bits)
 
 	var selected []interface{}
 	currentLabel := widget.NewLabel("(пусто)")
@@ -813,8 +851,7 @@ func (ui *WalletUI) addRuneGridRite() {
 
 	label := widget.NewLabelWithStyle("Runes", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
 	entry.bits = widget.NewLabel("0 bits")
-	removeBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() { ui.removeRite(entry) })
-	header := container.NewBorder(nil, nil, label, container.NewHBox(entry.bits, removeBtn))
+	header := container.NewBorder(nil, nil, label, entry.bits)
 
 	var placements []interface{}
 	selectedRune := -1
@@ -989,8 +1026,7 @@ func (ui *WalletUI) addConstellationRite() {
 
 	label := widget.NewLabelWithStyle("Constellation", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
 	entry.bits = widget.NewLabel("0 bits")
-	removeBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() { ui.removeRite(entry) })
-	header := container.NewBorder(nil, nil, label, container.NewHBox(entry.bits, removeBtn))
+	header := container.NewBorder(nil, nil, label, entry.bits)
 
 	rotation := 0
 	selectedLabel := widget.NewLabel("Stars: none")
